@@ -32,7 +32,7 @@ class CatalogViewModel(
 
     init {
         viewModelScope.launch {
-            repository.asegurarDatosIniciales()
+            runCatching {repository.asegurarDatosIniciales()}
         }
     }
 

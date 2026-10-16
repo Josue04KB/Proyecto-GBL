@@ -37,7 +37,7 @@ interface PlataformaDao {
     @Query("SELECT * FROM plataformas")
     fun getAllPlataformas(): Flow<List<PlataformaEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertarPlataforma(plataforma: PlataformaEntity)
 
     @Delete
