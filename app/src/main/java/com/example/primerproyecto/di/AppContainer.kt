@@ -6,7 +6,6 @@ import com.example.primerproyecto.data.repository.GameRepository
 import com.example.primerproyecto.data.repository.GameRepositoryImpl
 
 
-//contrato del contenedor
 interface AppContainer{
     val gameRepository: GameRepository
 }

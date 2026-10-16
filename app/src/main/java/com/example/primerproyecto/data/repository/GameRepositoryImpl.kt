@@ -51,4 +51,14 @@ class GameRepositoryImpl(
         plataformaDao.insertarPlataforma(PlataformaEntity(id = 2, nombre = "PS5", formatoDefault = "Físico"))
         plataformaDao.insertarPlataforma(PlataformaEntity(id = 3, nombre = "Switch", formatoDefault = "Físico"))
     }
+
+
+    override fun getVideojuegoPorIdStream(id: Int): Flow<VideojuegoEntity?> =
+        videojuegoDao.getVideojuegoPorId(id)
+
+    override suspend fun eliminarVideojuego(videojuego: VideojuegoEntity) =
+        videojuegoDao.eliminarVideojuego(videojuego)
+
+    override suspend fun eliminarPlataforma(plataforma: PlataformaEntity) =
+        plataformaDao.eliminarPlataforma(plataforma)
 }

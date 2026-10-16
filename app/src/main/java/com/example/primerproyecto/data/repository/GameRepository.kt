@@ -19,4 +19,8 @@ interface GameRepository {
     suspend fun registrarSesion(sesion: SesionJuegoEntity)
 
     suspend fun asegurarDatosIniciales()
+
+    fun getVideojuegoPorIdStream(id: Int): Flow<VideojuegoEntity?>
+    suspend fun eliminarVideojuego(videojuego: VideojuegoEntity)
+    suspend fun eliminarPlataforma(plataforma: PlataformaEntity)
 }
