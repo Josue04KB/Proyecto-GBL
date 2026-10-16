@@ -68,7 +68,6 @@ fun CatalogScreenContent(
     onSettingsClick: () -> Unit
 ) {
     var showAddModal by rememberSaveable { mutableStateOf(false) }
-    // Estado para guardar temporalmente el juego que se desea eliminar y mostrar la confirmación
     var juegoAEliminar by remember { mutableStateOf<VideojuegoEntity?>(null) }
 
     Scaffold(
@@ -79,12 +78,12 @@ fun CatalogScreenContent(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Star, contentDescription = null, tint = AccentPurple)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Mi Colección", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Mi Colección", color = TextPrimary, fontWeight = FontWeight.Bold)
                     }
                 },
                 actions = {
                     IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Default.Settings, contentDescription = "Ajustes", tint = Color.White)
+                        Icon(Icons.Default.Settings, contentDescription = "Ajustes", tint = TextPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgDark)
@@ -127,7 +126,7 @@ fun CatalogScreenContent(
                     Column(modifier = Modifier.fillMaxSize()) {
                         Text(
                             text = "${uiState.videojuegos.size} juegos en tu colección",
-                            color = Color.Gray,
+                            color = TextSecondary,
                             fontSize = 14.sp
                         )
 
@@ -144,7 +143,7 @@ fun CatalogScreenContent(
                                         selectedContainerColor = AccentPurple,
                                         selectedLabelColor = Color.White,
                                         containerColor = CardDark,
-                                        labelColor = Color.Gray
+                                        labelColor = TextSecondary
                                     ),
                                     shape = CircleShape
                                 )
@@ -157,7 +156,7 @@ fun CatalogScreenContent(
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text(
                                     text = "No hay juegos en esta vista. Pulsa '+' para agregar.",
-                                    color = Color.Gray
+                                    color = TextSecondary
                                 )
                             }
                         } else {
@@ -172,14 +171,13 @@ fun CatalogScreenContent(
                                     GameCardItem(
                                         juego = juego,
                                         onClick = { onGameClick(juego.id, juego.titulo) },
-                                        onDelete = { juegoAEliminar = juego } // Abre el diálogo de confirmación
+                                        onDelete = { juegoAEliminar = juego }
                                     )
                                 }
                             }
                         }
                     }
 
-                    // Modal para crear nuevo juego
                     if (showAddModal) {
                         NewGameModal(
                             plataformas = uiState.plataformas,
@@ -191,7 +189,6 @@ fun CatalogScreenContent(
                         )
                     }
 
-                    // Ventana emergente de confirmación para eliminar juego
                     juegoAEliminar?.let { juego ->
                         AlertDialog(
                             onDismissRequest = { juegoAEliminar = null },
@@ -199,14 +196,14 @@ fun CatalogScreenContent(
                             title = {
                                 Text(
                                     text = "Eliminar videojuego",
-                                    color = Color.White,
+                                    color = TextPrimary,
                                     fontWeight = FontWeight.Bold
                                 )
                             },
                             text = {
                                 Text(
                                     text = "¿Estás seguro de que deseas eliminar \"${juego.titulo}\" de tu colección? También se borrarán sus sesiones registradas.",
-                                    color = Color.LightGray
+                                    color = TextSecondary
                                 )
                             },
                             confirmButton = {
@@ -216,7 +213,7 @@ fun CatalogScreenContent(
                                         juegoAEliminar = null
                                     },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFE53935) // Rojo de alerta
+                                        containerColor = Color(0xFFE53935)
                                     )
                                 ) {
                                     Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
@@ -226,7 +223,7 @@ fun CatalogScreenContent(
                                 TextButton(
                                     onClick = { juegoAEliminar = null }
                                 ) {
-                                    Text("Cancelar", color = Color.Gray)
+                                    Text("Cancelar", color = TextSecondary)
                                 }
                             }
                         )
@@ -263,17 +260,17 @@ fun GameCardItem(
                     .fillMaxWidth()
                     .height(90.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF252038)),
+                    .background(AccentPurple.copy(alpha = 0.18f)),
                 contentAlignment = Alignment.TopEnd
             ) {
                 Surface(
-                    color = BgDark.copy(alpha = 0.8f),
+                    color = CardDark.copy(alpha = 0.85f),
                     shape = RoundedCornerShape(6.dp),
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
                         text = juego.genero,
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 11.sp,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
@@ -284,7 +281,7 @@ fun GameCardItem(
 
             Text(
                 text = juego.titulo,
-                color = Color.White,
+                color = TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
                 maxLines = 1
@@ -320,7 +317,7 @@ fun GameCardItem(
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Eliminar juego",
-                        tint = Color.Gray,
+                        tint = TextSecondary,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -359,27 +356,27 @@ fun NewGameModal(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Nuevo juego", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("Nuevo juego", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray)
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextSecondary)
                     }
                 }
 
-                Text("TÍTULO", color = Color.Gray, fontSize = 12.sp)
+                Text("TÍTULO", color = TextSecondary, fontSize = 12.sp)
                 OutlinedTextField(
                     value = titulo,
                     onValueChange = { titulo = it },
-                    placeholder = { Text("Nombre del juego", color = Color.DarkGray) },
+                    placeholder = { Text("Nombre del juego", color = TextSecondary) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
+                        focusedTextColor = TextPrimary,
+                        unfocusedTextColor = TextPrimary,
                         focusedBorderColor = AccentPurple
                     )
                 )
 
-                Text("PLATAFORMA", color = Color.Gray, fontSize = 12.sp)
+                Text("PLATAFORMA", color = TextSecondary, fontSize = 12.sp)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     val listaNombres = if (plataformas.isEmpty()) listOf("PC", "PS5", "Switch") else plataformas.map { it.nombre }
                     items(listaNombres) { nombrePlat ->
@@ -391,13 +388,13 @@ fun NewGameModal(
                                 selectedContainerColor = AccentPurple,
                                 selectedLabelColor = Color.White,
                                 containerColor = BgDark,
-                                labelColor = Color.Gray
+                                labelColor = TextSecondary
                             )
                         )
                     }
                 }
 
-                Text("ESTADO", color = Color.Gray, fontSize = 12.sp)
+                Text("ESTADO", color = TextSecondary, fontSize = 12.sp)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     estados.chunked(2).forEach { fila ->
                         Row(
@@ -412,7 +409,7 @@ fun NewGameModal(
                                         containerColor = if (estadoSeleccionado == est) AccentPurple.copy(alpha = 0.2f) else BgDark
                                     )
                                 ) {
-                                    Text(est, color = Color.White, fontSize = 12.sp)
+                                    Text(est, color = TextPrimary, fontSize = 12.sp)
                                 }
                             }
                         }

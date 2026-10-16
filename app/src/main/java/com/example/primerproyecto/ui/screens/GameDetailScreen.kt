@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,18 +57,17 @@ fun GameDetailScreenContent(
     onBack: () -> Unit,
     onAddSession: (Int, Int, String) -> Unit
 ) {
-    // Usamos rememberSaveable para no perder lo escrito al girar la pantalla
-    var minutosInput by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
-    var notasInput by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
+    var minutosInput by rememberSaveable { mutableStateOf("") }
+    var notasInput by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         containerColor = BgDark,
         topBar = {
             TopAppBar(
-                title = { Text(tituloJuego, color = Color.White, fontWeight = FontWeight.Bold) },
+                title = { Text(tituloJuego, color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgDark)
@@ -82,14 +82,13 @@ fun GameDetailScreenContent(
             }
             is DetailUiState.Error -> {
                 Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text(uiState.mensaje, color = Color.Red)
+                    Text(uiState.mensaje, color = MaterialTheme.colorScheme.error)
                 }
             }
             is DetailUiState.Success -> {
                 val horasTotales = String.format("%.1f", uiState.totalMinutos / 60.0)
                 val primeraPlataformaId = uiState.plataformas.firstOrNull()?.id ?: 1
 
-                // Una única LazyColumn permite deslizar toda la pantalla al girar el dispositivo
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -97,7 +96,6 @@ fun GameDetailScreenContent(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 1. Tarjeta de tiempo total
                     item {
                         Card(
                             colors = CardDefaults.cardColors(containerColor = CardDark),
@@ -105,7 +103,7 @@ fun GameDetailScreenContent(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("TIEMPO TOTAL INVERTIDO", color = Color.Gray, fontSize = 12.sp)
+                                Text("TIEMPO TOTAL INVERTIDO (ROOM)", color = TextSecondary, fontSize = 12.sp)
                                 Text(
                                     text = "$horasTotales hrs (${uiState.totalMinutos} min)",
                                     color = AccentPurple,
@@ -116,7 +114,6 @@ fun GameDetailScreenContent(
                         }
                     }
 
-                    // 2. Formulario para registrar sesión
                     item {
                         Card(
                             colors = CardDefaults.cardColors(containerColor = CardDark),
@@ -127,7 +124,7 @@ fun GameDetailScreenContent(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                Text("Registrar Nueva Sesión de Juego", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("Registrar Nueva Sesión de Juego", color = TextPrimary, fontWeight = FontWeight.Bold)
                                 OutlinedTextField(
                                     value = minutosInput,
                                     onValueChange = { minutosInput = it.filter { ch -> ch.isDigit() } },
@@ -136,8 +133,9 @@ fun GameDetailScreenContent(
                                     singleLine = true,
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White
+                                        focusedTextColor = TextPrimary,
+                                        unfocusedTextColor = TextPrimary,
+                                        focusedBorderColor = AccentPurple
                                     )
                                 )
                                 OutlinedTextField(
@@ -147,8 +145,9 @@ fun GameDetailScreenContent(
                                     singleLine = true,
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = Color.White,
-                                        unfocusedTextColor = Color.White
+                                        focusedTextColor = TextPrimary,
+                                        unfocusedTextColor = TextPrimary,
+                                        focusedBorderColor = AccentPurple
                                     )
                                 )
                                 Button(
@@ -163,22 +162,20 @@ fun GameDetailScreenContent(
                                     colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Guardar Sesión", color = Color.White)
+                                    Text("Guardar Sesión en Room", color = Color.White)
                                 }
                             }
                         }
                     }
 
-                    // 3. Encabezado del historial
                     item {
                         Text(
                             text = "Historial de Sesiones (${uiState.sesiones.size})",
-                            color = Color.White,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold
                         )
                     }
 
-                    // 4. Lista de sesiones registradas
                     items(uiState.sesiones, key = { it.id }) { sesion ->
                         SessionItemCard(sesion)
                     }
@@ -203,8 +200,8 @@ fun SessionItemCard(sesion: SesionJuegoEntity) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(sesion.notas, color = Color.White, fontWeight = FontWeight.SemiBold)
-                Text("Sesión registrada offline", color = Color.Gray, fontSize = 12.sp)
+                Text(sesion.notas, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                Text("Sesión registrada offline", color = TextSecondary, fontSize = 12.sp)
             }
             Text(
                 text = "+${sesion.minutosJugados} min",

@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 fun LoginScreen(
     onLoginSuccess: () -> Unit
 ) {
-    // rememberSaveable conserva el texto al girar la pantalla
     var email by rememberSaveable { mutableStateOf("player@gamebacklog.com") }
     var password by rememberSaveable { mutableStateOf("123456") }
 
@@ -35,7 +34,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState()) // Permite deslizar en modo horizontal
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -55,8 +54,8 @@ fun LoginScreen(
                 }
             }
 
-            Text("Bienvenido de nuevo", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text("Inicia sesión en tu colección offline", color = Color.Gray, fontSize = 14.sp)
+            Text("Bienvenido de nuevo", color = TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Inicia sesión en tu colección offline", color = TextSecondary, fontSize = 14.sp)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
@@ -67,20 +66,20 @@ fun LoginScreen(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("USUARIO O CORREO", color = Color.Gray, fontSize = 12.sp)
+                    Text("USUARIO O CORREO", color = TextSecondary, fontSize = 12.sp)
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
                             focusedBorderColor = AccentPurple
                         )
                     )
 
-                    Text("CONTRASEÑA", color = Color.Gray, fontSize = 12.sp)
+                    Text("CONTRASEÑA", color = TextSecondary, fontSize = 12.sp)
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
@@ -88,8 +87,8 @@ fun LoginScreen(
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
                             focusedBorderColor = AccentPurple
                         )
                     )

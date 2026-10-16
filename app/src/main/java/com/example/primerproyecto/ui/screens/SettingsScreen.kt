@@ -23,7 +23,7 @@ fun SettingsScreenContent(
     isDarkMode: Boolean,
     onToggleDarkMode: (Boolean) -> Unit,
     onAddPlatform: (String, String) -> Unit,
-    onLogout: () -> Unit, // <-- Lambda para propagar el evento de cierre de sesión
+    onLogout: () -> Unit,
     onBack: () -> Unit
 ) {
     var nuevaPlataforma by rememberSaveable { mutableStateOf("") }
@@ -33,10 +33,10 @@ fun SettingsScreenContent(
         containerColor = BgDark,
         topBar = {
             TopAppBar(
-                title = { Text("Ajustes y Plataformas", color = Color.White) },
+                title = { Text("Ajustes y Plataformas", color = TextPrimary) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = TextPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BgDark)
@@ -51,7 +51,6 @@ fun SettingsScreenContent(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 1. Preferencias con DataStore
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
                 shape = RoundedCornerShape(16.dp),
@@ -65,8 +64,8 @@ fun SettingsScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Modo Oscuro", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Modo Oscuro activo por defecto", color = Color.Gray, fontSize = 12.sp)
+                        Text("Modo Oscuro Gamer", color = TextPrimary, fontWeight = FontWeight.Bold)
+                        Text("Persistido localmente con Jetpack DataStore", color = TextSecondary, fontSize = 12.sp)
                     }
                     Switch(
                         checked = isDarkMode,
@@ -75,7 +74,6 @@ fun SettingsScreenContent(
                 }
             }
 
-            // 2. Alta de Plataformas (Maestra 2)
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
                 shape = RoundedCornerShape(16.dp),
@@ -85,7 +83,7 @@ fun SettingsScreenContent(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("Añadir Consola / Plataforma", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Añadir Consola / Plataforma (Maestra 2)", color = TextPrimary, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = nuevaPlataforma,
                         onValueChange = { nuevaPlataforma = it },
@@ -93,8 +91,8 @@ fun SettingsScreenContent(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary
                         )
                     )
                     Button(
@@ -112,7 +110,6 @@ fun SettingsScreenContent(
                 }
             }
 
-            // 3. Sección de Cuenta y Cierre de Sesión
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
                 shape = RoundedCornerShape(16.dp),
@@ -122,11 +119,11 @@ fun SettingsScreenContent(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("Sesión de Usuario", color = Color.White, fontWeight = FontWeight.Bold)
-                    Text("Cierra tu sesión actual y vuelve a la pantalla de acceso.", color = Color.Gray, fontSize = 12.sp)
+                    Text("Sesión de Usuario", color = TextPrimary, fontWeight = FontWeight.Bold)
+                    Text("Cierra tu sesión actual y vuelve a la pantalla de acceso.", color = TextSecondary, fontSize = 12.sp)
                     Button(
                         onClick = { mostrarConfirmacionLogout = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)), // Rojo alerta
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -140,16 +137,15 @@ fun SettingsScreenContent(
             }
         }
 
-        // Diálogo de confirmación antes de salir
         if (mostrarConfirmacionLogout) {
             AlertDialog(
                 onDismissRequest = { mostrarConfirmacionLogout = false },
                 containerColor = CardDark,
                 title = {
-                    Text("Cerrar sesión", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Cerrar sesión", color = TextPrimary, fontWeight = FontWeight.Bold)
                 },
                 text = {
-                    Text("¿Estás seguro de que deseas salir de tu cuenta?", color = Color.LightGray)
+                    Text("¿Estás seguro de que deseas salir de tu cuenta?", color = TextSecondary)
                 },
                 confirmButton = {
                     Button(
@@ -164,7 +160,7 @@ fun SettingsScreenContent(
                 },
                 dismissButton = {
                     TextButton(onClick = { mostrarConfirmacionLogout = false }) {
-                        Text("Cancelar", color = Color.Gray)
+                        Text("Cancelar", color = TextSecondary)
                     }
                 }
             )
