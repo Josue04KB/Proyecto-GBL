@@ -56,8 +56,9 @@ fun GameDetailScreenContent(
     onBack: () -> Unit,
     onAddSession: (Int, Int, String) -> Unit
 ) {
-    var minutosInput by remember { mutableStateOf("") }
-    var notasInput by remember { mutableStateOf("") }
+    // Usamos rememberSaveable para no perder lo escrito al girar la pantalla
+    var minutosInput by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
+    var notasInput by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         containerColor = BgDark,
@@ -73,92 +74,113 @@ fun GameDetailScreenContent(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            when (uiState) {
-                is DetailUiState.Loading -> CircularProgressIndicator(color = AccentPurple)
-                is DetailUiState.Error -> Text(uiState.mensaje, color = Color.Red)
-                is DetailUiState.Success -> {
-                    val horasTotales = String.format("%.1f", uiState.totalMinutos / 60.0)
-                    val primeraPlataformaId = uiState.plataformas.firstOrNull()?.id ?: 1
+        when (uiState) {
+            is DetailUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = AccentPurple)
+                }
+            }
+            is DetailUiState.Error -> {
+                Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                    Text(uiState.mensaje, color = Color.Red)
+                }
+            }
+            is DetailUiState.Success -> {
+                val horasTotales = String.format("%.1f", uiState.totalMinutos / 60.0)
+                val primeraPlataformaId = uiState.plataformas.firstOrNull()?.id ?: 1
 
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = CardDark),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("TIEMPO TOTAL INVERTIDO", color = Color.Gray, fontSize = 12.sp)
-                            Text(
-                                text = "$horasTotales hrs (${uiState.totalMinutos} min)",
-                                color = AccentPurple,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = CardDark),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                // Una única LazyColumn permite deslizar toda la pantalla al girar el dispositivo
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // 1. Tarjeta de tiempo total
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = CardDark),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Registrar Nueva Sesión de Juego", color = Color.White, fontWeight = FontWeight.Bold)
-                            OutlinedTextField(
-                                value = minutosInput,
-                                onValueChange = { minutosInput = it.filter { ch -> ch.isDigit() } },
-                                label = { Text("Minutos jugados (ej. 45)") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("TIEMPO TOTAL INVERTIDO", color = Color.Gray, fontSize = 12.sp)
+                                Text(
+                                    text = "$horasTotales hrs (${uiState.totalMinutos} min)",
+                                    color = AccentPurple,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
                                 )
-                            )
-                            OutlinedTextField(
-                                value = notasInput,
-                                onValueChange = { notasInput = it },
-                                label = { Text("Hito o avance alcanzado") },
-                                singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.White,
-                                    unfocusedTextColor = Color.White
-                                )
-                            )
-                            Button(
-                                onClick = {
-                                    val min = minutosInput.toIntOrNull() ?: 0
-                                    if (min > 0) {
-                                        onAddSession(primeraPlataformaId, min, notasInput)
-                                        minutosInput = ""
-                                        notasInput = ""
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Guardar Sesión", color = Color.White)
                             }
                         }
                     }
 
-                    Text("Historial de Sesiones (${uiState.sesiones.size})", color = Color.White, fontWeight = FontWeight.Bold)
-
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(uiState.sesiones, key = { it.id }) { sesion ->
-                            SessionItemCard(sesion)
+                    // 2. Formulario para registrar sesión
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = CardDark),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text("Registrar Nueva Sesión de Juego", color = Color.White, fontWeight = FontWeight.Bold)
+                                OutlinedTextField(
+                                    value = minutosInput,
+                                    onValueChange = { minutosInput = it.filter { ch -> ch.isDigit() } },
+                                    label = { Text("Minutos jugados (ej. 45)") },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White
+                                    )
+                                )
+                                OutlinedTextField(
+                                    value = notasInput,
+                                    onValueChange = { notasInput = it },
+                                    label = { Text("Hito o avance alcanzado") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White
+                                    )
+                                )
+                                Button(
+                                    onClick = {
+                                        val min = minutosInput.toIntOrNull() ?: 0
+                                        if (min > 0) {
+                                            onAddSession(primeraPlataformaId, min, notasInput)
+                                            minutosInput = ""
+                                            notasInput = ""
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Guardar Sesión", color = Color.White)
+                                }
+                            }
                         }
+                    }
+
+                    // 3. Encabezado del historial
+                    item {
+                        Text(
+                            text = "Historial de Sesiones (${uiState.sesiones.size})",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    // 4. Lista de sesiones registradas
+                    items(uiState.sesiones, key = { it.id }) { sesion ->
+                        SessionItemCard(sesion)
                     }
                 }
             }
