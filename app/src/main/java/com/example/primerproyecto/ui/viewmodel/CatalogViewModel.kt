@@ -69,6 +69,7 @@ class CatalogViewModel(
         viewModelScope.launch {
             repository.insertarVideojuego(
                 VideojuegoEntity(
+                    id = 0,
                     usuarioId = usuarioIdActual,
                     titulo = titulo.trim(),
                     genero = genero.ifBlank { "General" }.trim(),
