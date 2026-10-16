@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -49,6 +50,7 @@ fun CatalogRoute(
         uiState = uiState,
         onFilterChange = viewModel::cambiarFiltro,
         onAddGame = viewModel::agregarVideojuego,
+        onDeleteGame = viewModel::eliminarVideojuego,
         onGameClick = onNavigateToDetail,
         onSettingsClick = onNavigateToSettings
     )
@@ -61,10 +63,13 @@ fun CatalogScreenContent(
     uiState: CatalogUiState,
     onFilterChange: (String) -> Unit,
     onAddGame: (String, String, String) -> Unit,
+    onDeleteGame: (VideojuegoEntity) -> Unit,
     onGameClick: (Int, String) -> Unit,
     onSettingsClick: () -> Unit
 ) {
     var showAddModal by rememberSaveable { mutableStateOf(false) }
+    // Estado para guardar temporalmente el juego que se desea eliminar y mostrar la confirmación
+    var juegoAEliminar by remember { mutableStateOf<VideojuegoEntity?>(null) }
 
     Scaffold(
         containerColor = BgDark,
@@ -166,13 +171,15 @@ fun CatalogScreenContent(
                                 items(uiState.videojuegos, key = { it.id }) { juego ->
                                     GameCardItem(
                                         juego = juego,
-                                        onClick = { onGameClick(juego.id, juego.titulo) }
+                                        onClick = { onGameClick(juego.id, juego.titulo) },
+                                        onDelete = { juegoAEliminar = juego } // Abre el diálogo de confirmación
                                     )
                                 }
                             }
                         }
                     }
 
+                    // Modal para crear nuevo juego
                     if (showAddModal) {
                         NewGameModal(
                             plataformas = uiState.plataformas,
@@ -180,6 +187,47 @@ fun CatalogScreenContent(
                             onConfirm = { titulo, plataforma, estado ->
                                 onAddGame(titulo, plataforma, estado)
                                 showAddModal = false
+                            }
+                        )
+                    }
+
+                    // Ventana emergente de confirmación para eliminar juego
+                    juegoAEliminar?.let { juego ->
+                        AlertDialog(
+                            onDismissRequest = { juegoAEliminar = null },
+                            containerColor = CardDark,
+                            title = {
+                                Text(
+                                    text = "Eliminar videojuego",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            text = {
+                                Text(
+                                    text = "¿Estás seguro de que deseas eliminar \"${juego.titulo}\" de tu colección? También se borrarán sus sesiones registradas.",
+                                    color = Color.LightGray
+                                )
+                            },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        onDeleteGame(juego)
+                                        juegoAEliminar = null
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFFE53935) // Rojo de alerta
+                                    )
+                                ) {
+                                    Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = { juegoAEliminar = null }
+                                ) {
+                                    Text("Cancelar", color = Color.Gray)
+                                }
                             }
                         )
                     }
@@ -192,7 +240,8 @@ fun CatalogScreenContent(
 @Composable
 fun GameCardItem(
     juego: VideojuegoEntity,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val statusColor = when (juego.estado) {
         "En progreso" -> StatusPlaying
@@ -243,20 +292,38 @@ fun GameCardItem(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(statusColor)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = juego.estado,
-                    color = statusColor,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(statusColor)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = juego.estado,
+                        color = statusColor,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Eliminar juego",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }
@@ -284,7 +351,7 @@ fun NewGameModal(
             Column(
                 modifier = Modifier
                     .padding(20.dp)
-                    .verticalScroll(rememberScrollState()), // Permite deslizar el modal al girar la pantalla
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(

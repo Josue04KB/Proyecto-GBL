@@ -89,4 +89,11 @@ class CatalogViewModel(
             )
         }
     }
+
+    fun eliminarVideojuego(videojuego: VideojuegoEntity) {
+        viewModelScope.launch {
+            repository.eliminarVideojuego(videojuego)
+        }
+    }
+
 }
