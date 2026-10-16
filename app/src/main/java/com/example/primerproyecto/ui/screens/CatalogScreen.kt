@@ -8,8 +8,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,7 +64,7 @@ fun CatalogScreenContent(
     onGameClick: (Int, String) -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    var showAddModal by remember { mutableStateOf(false) }
+    var showAddModal by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         containerColor = BgDark,
@@ -157,6 +160,7 @@ fun CatalogScreenContent(
                                 columns = GridCells.Fixed(2),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                                contentPadding = PaddingValues(bottom = 80.dp),
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 items(uiState.videojuegos, key = { it.id }) { juego ->
@@ -258,18 +262,17 @@ fun GameCardItem(
     }
 }
 
-// Caja emergente al presionar el +
 @Composable
 fun NewGameModal(
     plataformas: List<PlataformaEntity>,
     onDismiss: () -> Unit,
     onConfirm: (String, String, String) -> Unit
 ) {
-    var titulo by remember { mutableStateOf("") }
-    var plataformaSeleccionada by remember {
+    var titulo by rememberSaveable { mutableStateOf("") }
+    var plataformaSeleccionada by rememberSaveable {
         mutableStateOf(plataformas.firstOrNull()?.nombre ?: "PC")
     }
-    var estadoSeleccionado by remember { mutableStateOf("Pendiente") }
+    var estadoSeleccionado by rememberSaveable { mutableStateOf("Pendiente") }
     val estados = listOf("En progreso", "Pendiente", "Completado", "Abandonado")
 
     Dialog(onDismissRequest = onDismiss) {
@@ -279,7 +282,9 @@ fun NewGameModal(
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState()), // Permite deslizar el modal al girar la pantalla
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(

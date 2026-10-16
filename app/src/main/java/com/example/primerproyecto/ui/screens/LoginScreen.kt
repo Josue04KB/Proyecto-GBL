@@ -2,11 +2,14 @@ package com.example.primerproyecto.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,17 +22,21 @@ import androidx.compose.ui.unit.sp
 fun LoginScreen(
     onLoginSuccess: () -> Unit
 ) {
-    var email by remember { mutableStateOf("player@gamebacklog.com") }
-    var password by remember { mutableStateOf("123456") }
+    // rememberSaveable conserva el texto al girar la pantalla
+    var email by rememberSaveable { mutableStateOf("player@gamebacklog.com") }
+    var password by rememberSaveable { mutableStateOf("123456") }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BgDark)
-            .padding(24.dp),
+            .background(BgDark),
         contentAlignment = Alignment.Center
     ) {
         Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()) // Permite deslizar en modo horizontal
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -60,7 +67,7 @@ fun LoginScreen(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("CORREO", color = Color.Gray, fontSize = 12.sp)
+                    Text("USUARIO O CORREO", color = Color.Gray, fontSize = 12.sp)
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -95,7 +102,7 @@ fun LoginScreen(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp) // Área táctil mínima recomendada de 48dp
+                            .height(48.dp)
                     ) {
                         Text("Iniciar Sesión", fontWeight = FontWeight.Bold, color = Color.White)
                     }

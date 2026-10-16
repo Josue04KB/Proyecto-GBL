@@ -1,11 +1,14 @@
 package com.example.primerproyecto.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +24,7 @@ fun SettingsScreenContent(
     onAddPlatform: (String, String) -> Unit,
     onBack: () -> Unit
 ) {
-    var nuevaPlataforma by remember { mutableStateOf("") }
+    var nuevaPlataforma by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         containerColor = BgDark,
@@ -41,6 +44,7 @@ fun SettingsScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState()) // Permite deslizar toda la pantalla al girar
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -56,9 +60,9 @@ fun SettingsScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text("Modo Oscuro", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Modo Oscuro activo por defecto", color = Color.Gray, fontSize = 12.sp)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Modo Oscuro Gamer", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Persistido localmente con Jetpack DataStore", color = Color.Gray, fontSize = 12.sp)
                     }
                     Switch(
                         checked = isDarkMode,
@@ -76,7 +80,7 @@ fun SettingsScreenContent(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("Añadir Consola / Plataforma", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Añadir Consola / Plataforma (Maestra 2)", color = Color.White, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = nuevaPlataforma,
                         onValueChange = { nuevaPlataforma = it },
