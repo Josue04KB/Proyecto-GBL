@@ -79,6 +79,12 @@ fun GameNavGraph(
                 onAddPlatform = { nombre, formato ->
                     catalogViewModel.agregarPlataforma(nombre, formato)
                 },
+                onLogout = {
+                    // Navega al Login y limpia el historial de pantallas previas
+                    navController.navigate("login") {
+                        popUpTo("catalog") { inclusive = true }
+                    }
+                },
                 onBack = { navController.popBackStack() }
             )
         }

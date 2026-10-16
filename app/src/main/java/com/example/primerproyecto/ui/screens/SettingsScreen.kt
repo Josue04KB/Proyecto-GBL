@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,9 +23,11 @@ fun SettingsScreenContent(
     isDarkMode: Boolean,
     onToggleDarkMode: (Boolean) -> Unit,
     onAddPlatform: (String, String) -> Unit,
+    onLogout: () -> Unit, // <-- Lambda para propagar el evento de cierre de sesión
     onBack: () -> Unit
 ) {
     var nuevaPlataforma by rememberSaveable { mutableStateOf("") }
+    var mostrarConfirmacionLogout by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = BgDark,
@@ -44,10 +47,11 @@ fun SettingsScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState()) // Permite deslizar toda la pantalla al girar
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // 1. Preferencias con DataStore
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
                 shape = RoundedCornerShape(16.dp),
@@ -61,8 +65,8 @@ fun SettingsScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Modo Oscuro Gamer", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Persistido localmente con Jetpack DataStore", color = Color.Gray, fontSize = 12.sp)
+                        Text("Modo Oscuro", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Modo Oscuro activo por defecto", color = Color.Gray, fontSize = 12.sp)
                     }
                     Switch(
                         checked = isDarkMode,
@@ -71,6 +75,7 @@ fun SettingsScreenContent(
                 }
             }
 
+            // 2. Alta de Plataformas (Maestra 2)
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
                 shape = RoundedCornerShape(16.dp),
@@ -80,7 +85,7 @@ fun SettingsScreenContent(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text("Añadir Consola / Plataforma (Maestra 2)", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Añadir Consola / Plataforma", color = Color.White, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = nuevaPlataforma,
                         onValueChange = { nuevaPlataforma = it },
@@ -106,6 +111,63 @@ fun SettingsScreenContent(
                     }
                 }
             }
+
+            // 3. Sección de Cuenta y Cierre de Sesión
+            Card(
+                colors = CardDefaults.cardColors(containerColor = CardDark),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text("Sesión de Usuario", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Cierra tu sesión actual y vuelve a la pantalla de acceso.", color = Color.Gray, fontSize = 12.sp)
+                    Button(
+                        onClick = { mostrarConfirmacionLogout = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)), // Rojo alerta
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                    ) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = null, tint = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Cerrar Sesión", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
+        // Diálogo de confirmación antes de salir
+        if (mostrarConfirmacionLogout) {
+            AlertDialog(
+                onDismissRequest = { mostrarConfirmacionLogout = false },
+                containerColor = CardDark,
+                title = {
+                    Text("Cerrar sesión", color = Color.White, fontWeight = FontWeight.Bold)
+                },
+                text = {
+                    Text("¿Estás seguro de que deseas salir de tu cuenta?", color = Color.LightGray)
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            mostrarConfirmacionLogout = false
+                            onLogout()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                    ) {
+                        Text("Salir", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { mostrarConfirmacionLogout = false }) {
+                        Text("Cancelar", color = Color.Gray)
+                    }
+                }
+            )
         }
     }
 }
