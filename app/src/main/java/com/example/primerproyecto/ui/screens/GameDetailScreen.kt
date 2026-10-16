@@ -103,7 +103,7 @@ fun GameDetailScreenContent(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("TIEMPO TOTAL INVERTIDO (ROOM)", color = TextSecondary, fontSize = 12.sp)
+                                Text("TIEMPO TOTAL INVERTIDO", color = TextSecondary, fontSize = 12.sp)
                                 Text(
                                     text = "$horasTotales hrs (${uiState.totalMinutos} min)",
                                     color = AccentPurple,
@@ -162,7 +162,7 @@ fun GameDetailScreenContent(
                                     colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Guardar Sesión en Room", color = Color.White)
+                                    Text("Guardar Sesión", color = Color.White)
                                 }
                             }
                         }
