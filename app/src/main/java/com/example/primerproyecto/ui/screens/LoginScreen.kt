@@ -60,7 +60,7 @@ fun LoginScreen(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("USUARIO O CORREO", color = Color.Gray, fontSize = 12.sp)
+                    Text("CORREO", color = Color.Gray, fontSize = 12.sp)
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },

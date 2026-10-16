@@ -36,7 +36,6 @@ class CatalogViewModel(
         }
     }
 
-    // Único StateFlow reactivo expuesto a la UI
     val uiState: StateFlow<CatalogUiState> = combine(
         repository.getVideojuegosStream(usuarioIdActual),
         repository.getPlataformasStream(),

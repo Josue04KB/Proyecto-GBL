@@ -258,6 +258,7 @@ fun GameCardItem(
     }
 }
 
+// Caja emergente al presionar el +
 @Composable
 fun NewGameModal(
     plataformas: List<PlataformaEntity>,
