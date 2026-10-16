@@ -39,11 +39,18 @@ android {
 
 dependencies {
     // Aquí están las dependencias del ROOM
-    // Aquí están las dependencias del ROOM
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
+
+    // DataStore (Para que desaparezca el rojo en SettingsDataStore)
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Navegación y Ciclo de Vida (Para GameScreens y GameNavGraph)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
 
 
