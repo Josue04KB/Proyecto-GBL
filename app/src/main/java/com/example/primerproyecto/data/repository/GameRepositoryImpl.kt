@@ -37,4 +37,18 @@ class GameRepositoryImpl(
 
     override suspend fun registrarSesion(sesion: SesionJuegoEntity) =
         sesionJuegoDao.registrarSesion(sesion)
+
+    override suspend fun asegurarDatosIniciales() {
+        videojuegoDao.insertarUsuarioBase(
+            com.example.primerproyecto.data.local.entities.UsuarioEntity(
+                id = 1,
+                nombreUsuario = "Player1",
+                correo = "player@gamebacklog.com",
+                passwordHash = "123456"
+            )
+        )
+        plataformaDao.insertarPlataforma(PlataformaEntity(id = 1, nombre = "PC", formatoDefault = "Digital"))
+        plataformaDao.insertarPlataforma(PlataformaEntity(id = 2, nombre = "PS5", formatoDefault = "Físico"))
+        plataformaDao.insertarPlataforma(PlataformaEntity(id = 3, nombre = "Switch", formatoDefault = "Físico"))
+    }
 }

@@ -27,6 +27,9 @@ interface VideojuegoDao {
 
     @Delete
     suspend fun eliminarVideojuego(videojuego: VideojuegoEntity)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertarUsuarioBase(usuario: com.example.primerproyecto.data.local.entities.UsuarioEntity)
 }
 
 @Dao

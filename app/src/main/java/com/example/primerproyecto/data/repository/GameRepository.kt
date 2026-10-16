@@ -17,4 +17,6 @@ interface GameRepository {
     suspend fun actualizarVideojuego(videojuego: VideojuegoEntity)
     suspend fun insertarPlataforma(plataforma: PlataformaEntity)
     suspend fun registrarSesion(sesion: SesionJuegoEntity)
+
+    suspend fun asegurarDatosIniciales()
 }
