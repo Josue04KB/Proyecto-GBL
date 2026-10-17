@@ -72,8 +72,8 @@ fun SettingsScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Modo Oscuro Gamer", color = TextPrimary, fontWeight = FontWeight.Bold)
-                        Text("Persistido localmente con Jetpack DataStore", color = TextSecondary, fontSize = 12.sp)
+                        Text("Modo Oscuro", color = TextPrimary, fontWeight = FontWeight.Bold)
+
                     }
                     Switch(
                         checked = isDarkMode,
@@ -92,7 +92,7 @@ fun SettingsScreenContent(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Gestión de Plataformas (Maestra 2)", color = TextPrimary, fontWeight = FontWeight.Bold)
+                    Text("Gestión de Plataformas", color = TextPrimary, fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = nuevaPlataforma,
                         onValueChange = { nuevaPlataforma = it },
