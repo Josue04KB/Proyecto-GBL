@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.example.primerproyecto.data.local.SettingsDataStore
 import com.example.primerproyecto.ui.screens.*
 import com.example.primerproyecto.ui.viewmodel.AppViewModelProvider
+import com.example.primerproyecto.ui.viewmodel.CatalogUiState
 import com.example.primerproyecto.ui.viewmodel.CatalogViewModel
 import kotlinx.coroutines.launch
 
@@ -71,16 +72,22 @@ fun GameNavGraph(
 
         composable("settings") {
             val catalogViewModel: CatalogViewModel = viewModel(factory = AppViewModelProvider.Factory)
+            val catalogState by catalogViewModel.uiState.collectAsStateWithLifecycle()
+            val listaPlataformas = (catalogState as? CatalogUiState.Success)?.plataformas ?: emptyList()
+
             SettingsScreenContent(
                 isDarkMode = isDarkMode,
+                plataformas = listaPlataformas,
                 onToggleDarkMode = { enabled ->
                     scope.launch { settingsDataStore.toggleDarkMode(enabled) }
                 },
                 onAddPlatform = { nombre, formato ->
                     catalogViewModel.agregarPlataforma(nombre, formato)
                 },
+                onDeletePlatform = { plataforma ->
+                    catalogViewModel.eliminarPlataforma(plataforma)
+                },
                 onLogout = {
-                    // Navega al Login y limpia el historial de pantallas previas
                     navController.navigate("login") {
                         popUpTo("catalog") { inclusive = true }
                     }

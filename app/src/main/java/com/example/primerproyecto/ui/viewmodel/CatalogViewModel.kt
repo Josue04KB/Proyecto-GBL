@@ -96,4 +96,12 @@ class CatalogViewModel(
         }
     }
 
+    fun eliminarPlataforma(plataforma: PlataformaEntity) {
+        viewModelScope.launch {
+            runCatching {
+                repository.eliminarPlataforma(plataforma)
+            }
+        }
+    }
+
 }
