@@ -14,10 +14,21 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface VideojuegoDao {
 
-    @Query("SELECT * FROM usuarios WHERE (correo = :identificador OR nombre_usuario = :identificador) AND password_hash = :password LIMIT 1")
+    @Query("""
+        SELECT * FROM usuarios 
+        WHERE (LOWER(TRIM(correo)) = LOWER(TRIM(:identificador)) 
+           OR LOWER(TRIM(nombre_usuario)) = LOWER(TRIM(:identificador))) 
+          AND password_hash = :password 
+        LIMIT 1
+    """)
     suspend fun loginUsuario(identificador: String, password: String): com.example.primerproyecto.data.local.entities.UsuarioEntity?
 
-    @Query("SELECT * FROM usuarios WHERE correo = :correo OR nombre_usuario = :nombreUsuario LIMIT 1")
+    @Query("""
+        SELECT * FROM usuarios 
+        WHERE LOWER(TRIM(correo)) = LOWER(TRIM(:correo)) 
+           OR LOWER(TRIM(nombre_usuario)) = LOWER(TRIM(:nombreUsuario)) 
+        LIMIT 1
+    """)
     suspend fun buscarUsuarioExistente(nombreUsuario: String, correo: String): com.example.primerproyecto.data.local.entities.UsuarioEntity?
     @Query ("SELECT * FROM videojuegos WHERE usuario_id = :usuarioId")
     fun getVideojuegosPorUsuario(usuarioId: Int): Flow<List<VideojuegoEntity>>

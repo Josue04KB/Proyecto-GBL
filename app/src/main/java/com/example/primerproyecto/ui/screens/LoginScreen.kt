@@ -103,12 +103,12 @@ fun LoginScreenContent(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("CORREO", color = TextSecondary, fontSize = 12.sp)
+                    Text("USUARIO O CORREO", color = TextSecondary, fontSize = 12.sp)
                     OutlinedTextField(
                         value = identificador,
                         onValueChange = { identificador = it },
                         placeholder = {
-                            Text("Ingresa tu correo", color = TextSecondary.copy(alpha = 0.6f))
+                            Text("Ingresa tu usuario o correo", color = TextSecondary.copy(alpha = 0.6f))
                         },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
