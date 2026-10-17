@@ -3,11 +3,14 @@ package com.example.primerproyecto.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -29,6 +32,7 @@ import com.example.primerproyecto.ui.viewmodel.GameDetailViewModel
 fun GameDetailRoute(
     videojuegoId: Int,
     tituloJuego: String,
+    windowWidthSizeClass: WindowWidthSizeClass,
     onBack: () -> Unit,
     viewModel: GameDetailViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -41,6 +45,7 @@ fun GameDetailRoute(
     GameDetailScreenContent(
         tituloJuego = tituloJuego,
         uiState = uiState,
+        windowWidthSizeClass = windowWidthSizeClass,
         onBack = onBack,
         onAddSession = { platId, minutos, notas ->
             viewModel.registrarSesion(videojuegoId, platId, minutos, notas)
@@ -54,11 +59,15 @@ fun GameDetailRoute(
 fun GameDetailScreenContent(
     tituloJuego: String,
     uiState: DetailUiState,
+    windowWidthSizeClass: WindowWidthSizeClass,
     onBack: () -> Unit,
     onAddSession: (Int, Int, String) -> Unit
 ) {
     var minutosInput by rememberSaveable { mutableStateOf("") }
     var notasInput by rememberSaveable { mutableStateOf("") }
+
+    // Detecta si el dispositivo está en horizontal o es una pantalla ancha (WindowSizeClass)
+    val esPantallaAncha = windowWidthSizeClass != WindowWidthSizeClass.Compact
 
     Scaffold(
         containerColor = BgDark,
@@ -89,97 +98,175 @@ fun GameDetailScreenContent(
                 val horasTotales = String.format("%.1f", uiState.totalMinutos / 60.0)
                 val primeraPlataformaId = uiState.plataformas.firstOrNull()?.id ?: 1
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item {
-                        Card(
-                            colors = CardDefaults.cardColors(containerColor = CardDark),
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth()
+                if (esPantallaAncha) {
+                    // MODO HORIZONTAL / TABLET (Medium / Expanded): Reorganiza en 2 paneles lado a lado
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Panel Izquierdo: Resumen + Formulario con scroll propio
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("TIEMPO TOTAL INVERTIDO", color = TextSecondary, fontSize = 12.sp)
-                                Text(
-                                    text = "$horasTotales hrs (${uiState.totalMinutos} min)",
-                                    color = AccentPurple,
-                                    fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                            ResumenTiempoCard(horasTotales, uiState.totalMinutos)
+                            FormularioSesionCard(
+                                minutosInput = minutosInput,
+                                notasInput = notasInput,
+                                onMinutosChange = { minutosInput = it.filter { ch -> ch.isDigit() } },
+                                onNotasChange = { notasInput = it },
+                                onGuardar = {
+                                    val min = minutosInput.toIntOrNull() ?: 0
+                                    if (min > 0) {
+                                        onAddSession(primeraPlataformaId, min, notasInput)
+                                        minutosInput = ""
+                                        notasInput = ""
+                                    }
+                                }
+                            )
                         }
-                    }
 
-                    item {
-                        Card(
-                            colors = CardDefaults.cardColors(containerColor = CardDark),
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth()
+                        // Panel Derecho: Historial de Sesiones independiente
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            Text(
+                                text = "Historial de Sesiones (${uiState.sesiones.size})",
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.fillMaxSize()
                             ) {
-                                Text("Registrar Nueva Sesión de Juego", color = TextPrimary, fontWeight = FontWeight.Bold)
-                                OutlinedTextField(
-                                    value = minutosInput,
-                                    onValueChange = { minutosInput = it.filter { ch -> ch.isDigit() } },
-                                    label = { Text("Minutos jugados (ej. 45)") },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = TextPrimary,
-                                        unfocusedTextColor = TextPrimary,
-                                        focusedBorderColor = AccentPurple
-                                    )
-                                )
-                                OutlinedTextField(
-                                    value = notasInput,
-                                    onValueChange = { notasInput = it },
-                                    label = { Text("Hito o avance alcanzado") },
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = TextPrimary,
-                                        unfocusedTextColor = TextPrimary,
-                                        focusedBorderColor = AccentPurple
-                                    )
-                                )
-                                Button(
-                                    onClick = {
-                                        val min = minutosInput.toIntOrNull() ?: 0
-                                        if (min > 0) {
-                                            onAddSession(primeraPlataformaId, min, notasInput)
-                                            minutosInput = ""
-                                            notasInput = ""
-                                        }
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Text("Guardar Sesión", color = Color.White)
+                                items(uiState.sesiones, key = { it.id }) { sesion ->
+                                    SessionItemCard(sesion)
                                 }
                             }
                         }
                     }
-
-                    item {
-                        Text(
-                            text = "Historial de Sesiones (${uiState.sesiones.size})",
-                            color = TextPrimary,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    items(uiState.sesiones, key = { it.id }) { sesion ->
-                        SessionItemCard(sesion)
+                } else {
+                    // MODO VERTICAL (Compact): Todo en una sola lista deslizable
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        item {
+                            ResumenTiempoCard(horasTotales, uiState.totalMinutos)
+                        }
+                        item {
+                            FormularioSesionCard(
+                                minutosInput = minutosInput,
+                                notasInput = notasInput,
+                                onMinutosChange = { minutosInput = it.filter { ch -> ch.isDigit() } },
+                                onNotasChange = { notasInput = it },
+                                onGuardar = {
+                                    val min = minutosInput.toIntOrNull() ?: 0
+                                    if (min > 0) {
+                                        onAddSession(primeraPlataformaId, min, notasInput)
+                                        minutosInput = ""
+                                        notasInput = ""
+                                    }
+                                }
+                            )
+                        }
+                        item {
+                            Text(
+                                text = "Historial de Sesiones (${uiState.sesiones.size})",
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        items(uiState.sesiones, key = { it.id }) { sesion ->
+                            SessionItemCard(sesion)
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ResumenTiempoCard(horasTotales: String, totalMinutos: Int) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = CardDark),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("TIEMPO TOTAL INVERTIDO", color = TextSecondary, fontSize = 12.sp)
+            Text(
+                text = "$horasTotales hrs ($totalMinutos min)",
+                color = AccentPurple,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+fun FormularioSesionCard(
+    minutosInput: String,
+    notasInput: String,
+    onMinutosChange: (String) -> Unit,
+    onNotasChange: (String) -> Unit,
+    onGuardar: () -> Unit
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = CardDark),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text("Registrar Nueva Sesión de Juego", color = TextPrimary, fontWeight = FontWeight.Bold)
+            OutlinedTextField(
+                value = minutosInput,
+                onValueChange = onMinutosChange,
+                label = { Text("Minutos jugados (ej. 45)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = AccentPurple
+                )
+            )
+            OutlinedTextField(
+                value = notasInput,
+                onValueChange = onNotasChange,
+                label = { Text("Hito o avance alcanzado") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = AccentPurple
+                )
+            )
+            Button(
+                onClick = onGuardar,
+                colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Guardar Sesión", color = Color.White)
             }
         }
     }

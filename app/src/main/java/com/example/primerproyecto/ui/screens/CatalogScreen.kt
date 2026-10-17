@@ -39,7 +39,7 @@ import com.example.primerproyecto.ui.viewmodel.AppViewModelProvider
 import com.example.primerproyecto.ui.viewmodel.CatalogUiState
 import com.example.primerproyecto.ui.viewmodel.CatalogViewModel
 import com.example.primerproyecto.R
-
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 data class PredefinedGame(
     val titulo: String,
     val plataformaSugerida: String,
@@ -63,6 +63,7 @@ val CatalogoJuegosPredefinidos = listOf(
 @Composable
 fun CatalogRoute(
     userId: Int,
+    windowWidthSizeClass: WindowWidthSizeClass,
     onNavigateToDetail: (Int, String) -> Unit,
     onNavigateToSettings: () -> Unit,
     viewModel: CatalogViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -75,6 +76,7 @@ fun CatalogRoute(
 
     CatalogScreenContent(
         uiState = uiState,
+        windowWidthSizeClass = windowWidthSizeClass,
         onFilterChange = viewModel::cambiarFiltro,
         onAddGame = viewModel::agregarVideojuego,
         onDeleteGame = viewModel::eliminarVideojuego,
@@ -83,11 +85,11 @@ fun CatalogRoute(
     )
 }
 
-// VISTA PURA SIN ESTADO (Stateless Content)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreenContent(
     uiState: CatalogUiState,
+    windowWidthSizeClass: WindowWidthSizeClass,
     onFilterChange: (String) -> Unit,
     onAddGame: (String, String, String) -> Unit,
     onDeleteGame: (VideojuegoEntity) -> Unit,
@@ -96,6 +98,15 @@ fun CatalogScreenContent(
 ) {
     var showAddModal by rememberSaveable { mutableStateOf(false) }
     var juegoAEliminar by remember { mutableStateOf<VideojuegoEntity?>(null) }
+
+    // DISEÑO ADAPTATIVO CON WINDOWSIZECLASS (+0.4 pts extra):
+    // En vertical (Compact) muestra 2 columnas; al girar el teléfono (Medium/Expanded) reorganiza a 3 o 4 columnas
+    val numColumnas = when (windowWidthSizeClass) {
+        WindowWidthSizeClass.Compact -> 2
+        WindowWidthSizeClass.Medium -> 3
+        WindowWidthSizeClass.Expanded -> 4
+        else -> 2
+    }
 
     Scaffold(
         containerColor = BgDark,
@@ -188,7 +199,7 @@ fun CatalogScreenContent(
                             }
                         } else {
                             LazyVerticalGrid(
-                                columns = GridCells.Fixed(2),
+                                columns = GridCells.Fixed(numColumnas), // <-- Usa el cálculo de WindowSizeClass
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(bottom = 80.dp),
@@ -260,7 +271,6 @@ fun CatalogScreenContent(
         }
     }
 }
-
 @Composable
 fun GameCardItem(
     juego: VideojuegoEntity,

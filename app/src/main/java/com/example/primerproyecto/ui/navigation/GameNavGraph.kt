@@ -1,6 +1,7 @@
 package com.example.primerproyecto.ui.navigation
 
 import android.net.Uri
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GameNavGraph(
+    windowWidthSizeClass: WindowWidthSizeClass,
     settingsDataStore: SettingsDataStore,
     navController: NavHostController = rememberNavController()
 ) {
@@ -65,6 +67,7 @@ fun GameNavGraph(
 
             CatalogRoute(
                 userId = userId,
+                windowWidthSizeClass = windowWidthSizeClass,
                 onNavigateToDetail = { id, titulo ->
                     val encodedTitle = Uri.encode(titulo)
                     navController.navigate("detail/$id/$encodedTitle")
@@ -88,6 +91,7 @@ fun GameNavGraph(
             GameDetailRoute(
                 videojuegoId = gameId,
                 tituloJuego = gameTitle,
+                windowWidthSizeClass = windowWidthSizeClass,
                 onBack = { navController.popBackStack() }
             )
         }
