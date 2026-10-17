@@ -22,6 +22,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.primerproyecto.ui.viewmodel.AppViewModelProvider
 import com.example.primerproyecto.ui.viewmodel.AuthUiState
 import com.example.primerproyecto.ui.viewmodel.AuthViewModel
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.primerproyecto.R
 
 // CONTENEDOR CON ESTADO (Stateful Route)
 @Composable
@@ -77,14 +80,13 @@ fun LoginScreenContent(
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = CardDark,
-                modifier = Modifier.size(64.dp)
+                modifier = Modifier.size(72.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Logo",
-                        tint = AccentPurple,
-                        modifier = Modifier.size(36.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        contentDescription = "Logo de GameBacklog",
+                        modifier = Modifier.size(96.dp)
                     )
                 }
             }
@@ -101,12 +103,12 @@ fun LoginScreenContent(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("USUARIO O CORREO", color = TextSecondary, fontSize = 12.sp)
+                    Text("CORREO", color = TextSecondary, fontSize = 12.sp)
                     OutlinedTextField(
                         value = identificador,
                         onValueChange = { identificador = it },
                         placeholder = {
-                            Text("Ej. player@ejemplo.com", color = TextSecondary.copy(alpha = 0.6f))
+                            Text("Ingresa tu correo", color = TextSecondary.copy(alpha = 0.6f))
                         },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
