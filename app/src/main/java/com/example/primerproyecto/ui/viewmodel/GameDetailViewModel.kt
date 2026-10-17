@@ -5,15 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.primerproyecto.data.local.entities.PlataformaEntity
 import com.example.primerproyecto.data.local.entities.SesionJuegoEntity
 import com.example.primerproyecto.data.repository.GameRepository
+import com.example.primerproyecto.usecase.RegistrarSesionUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 sealed interface DetailUiState {
@@ -27,7 +21,8 @@ sealed interface DetailUiState {
 }
 
 class GameDetailViewModel(
-    private val repository: GameRepository
+    private val repository: GameRepository,
+    private val registrarSesionUseCase: RegistrarSesionUseCase // <-- Inyectado desde la Capa de Dominio
 ) : ViewModel() {
 
     private val _videojuegoId = MutableStateFlow<Int?>(null)
@@ -67,16 +62,13 @@ class GameDetailViewModel(
         minutosJugados: Int,
         notas: String
     ) {
-        if (minutosJugados <= 0) return
         viewModelScope.launch {
-            repository.registrarSesion(
-                SesionJuegoEntity(
-                    videojuegoId = videojuegoId,
-                    plataformaId = plataformaId,
-                    fechaSesion = System.currentTimeMillis(),
-                    minutosJugados = minutosJugados,
-                    notas = notas.ifBlank { "Sesión completada" }.trim()
-                )
+            // Invocación directa gracias a operator fun invoke()
+            registrarSesionUseCase(
+                videojuegoId = videojuegoId,
+                plataformaId = plataformaId,
+                minutosJugados = minutosJugados,
+                notas = notas
             )
         }
     }

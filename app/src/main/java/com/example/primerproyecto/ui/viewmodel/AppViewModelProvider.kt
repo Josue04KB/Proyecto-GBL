@@ -19,8 +19,10 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            val container = gameBacklogApplication().container
             GameDetailViewModel(
-                repository = gameBacklogApplication().container.gameRepository
+                repository = container.gameRepository,
+                registrarSesionUseCase = container.registrarSesionUseCase
             )
         }
     }
