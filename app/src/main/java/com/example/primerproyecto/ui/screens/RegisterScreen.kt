@@ -92,7 +92,7 @@ fun RegisterScreenContent(
             }
 
             Text("Crear Cuenta", color = TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text("Regístrate localmente en Room (Offline-First)", color = TextSecondary, fontSize = 14.sp)
+            Text("Regístrate localmente", color = TextSecondary, fontSize = 14.sp)
 
             Card(
                 colors = CardDefaults.cardColors(containerColor = CardDark),
@@ -107,7 +107,7 @@ fun RegisterScreenContent(
                     OutlinedTextField(
                         value = nombreUsuario,
                         onValueChange = { nombreUsuario = it },
-                        placeholder = { Text("Ej. JosueGamer", color = TextSecondary) },
+                        placeholder = { Text("Ej. Usuario", color = TextSecondary) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
