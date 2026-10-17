@@ -1,5 +1,7 @@
 package com.example.primerproyecto.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,19 +15,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -36,6 +38,26 @@ import com.example.primerproyecto.data.local.entities.VideojuegoEntity
 import com.example.primerproyecto.ui.viewmodel.AppViewModelProvider
 import com.example.primerproyecto.ui.viewmodel.CatalogUiState
 import com.example.primerproyecto.ui.viewmodel.CatalogViewModel
+import com.example.primerproyecto.R
+
+data class PredefinedGame(
+    val titulo: String,
+    val plataformaSugerida: String,
+    val colorInicio: Color,
+    val colorFin: Color,
+    val drawableRes: Int? = null
+)
+
+val CatalogoJuegosPredefinidos = listOf(
+    PredefinedGame("Elden Ring", "PS5", Color(0xFF1B4332), Color(0xFFD4AF37),R.drawable.elden_ring),
+    PredefinedGame("Baldur's Gate 3", "PC", Color(0xFF4A154B), Color(0xFFFF6B35),R.drawable.baldur_gate_3),
+    PredefinedGame("Zelda: Tears of the Kingdom", "Switch", Color(0xFF0077B6), Color(0xFF90E0EF),R.drawable.zelda_tears_of_the_kingdom),
+    PredefinedGame("Cyberpunk 2077", "PC", Color(0xFFF7B801), Color(0xFF7209B7),R.drawable.cyberpunk_2077),
+    PredefinedGame("God of War Ragnarök", "PS5", Color(0xFF03045E), Color(0xFF00B4D8),R.drawable.god_of_war_ragnarok),
+    PredefinedGame("Hollow Knight", "Switch", Color(0xFF2B2D42), Color(0xFF8D99AE),R.drawable.hollow_knight),
+    PredefinedGame("Minecraft", "PC", Color(0xFF2D6A4F), Color(0xFF74C69D),R.drawable.minecraft),
+    PredefinedGame("Pokémon Luminescent", "Switch", Color(0xFF3A0CA3), Color(0xFFF72585),R.drawable.pokemon_luminescent)
+)
 
 // CONTENEDOR CON ESTADO (Stateful Route)
 @Composable
@@ -155,7 +177,7 @@ fun CatalogScreenContent(
                         if (uiState.videojuegos.isEmpty()) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text(
-                                    text = "No hay juegos en esta vista. Pulsa '+' para agregar.",
+                                    text = "No hay juegos en esta vista. Pulsa '+' para elegir del catálogo.",
                                     color = TextSecondary
                                 )
                             }
@@ -247,6 +269,15 @@ fun GameCardItem(
         else -> StatusDropped
     }
 
+    // Buscamos los datos visuales del juego en el catálogo predefinido
+    val preset = CatalogoJuegosPredefinidos.find { it.titulo.equals(juego.titulo, ignoreCase = true) }
+    val brush = Brush.linearGradient(
+        colors = listOf(
+            preset?.colorInicio ?: AccentPurple,
+            preset?.colorFin ?: Color(0xFF252038)
+        )
+    )
+
     Card(
         colors = CardDefaults.cardColors(containerColor = CardDark),
         shape = RoundedCornerShape(16.dp),
@@ -254,24 +285,46 @@ fun GameCardItem(
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Portada del juego (Imagen si tiene drawableRes, o degradado artístico gamer)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(90.dp)
+                    .height(110.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(AccentPurple.copy(alpha = 0.18f)),
+                    .background(brush),
                 contentAlignment = Alignment.TopEnd
             ) {
+                if (preset?.drawableRes != null) {
+                    Image(
+                        painter = painterResource(id = preset.drawableRes),
+                        contentDescription = juego.titulo,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    // Icono decorativo central en la portada
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.25f),
+                        modifier = Modifier
+                            .size(54.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+
+                // Etiqueta de plataforma en la esquina superior derecha
                 Surface(
-                    color = CardDark.copy(alpha = 0.85f),
+                    color = Color.Black.copy(alpha = 0.65f),
                     shape = RoundedCornerShape(6.dp),
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
                         text = juego.genero,
-                        color = TextPrimary,
+                        color = Color.White,
                         fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
@@ -284,7 +337,8 @@ fun GameCardItem(
                 color = TextPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -332,9 +386,9 @@ fun NewGameModal(
     onDismiss: () -> Unit,
     onConfirm: (String, String, String) -> Unit
 ) {
-    var titulo by rememberSaveable { mutableStateOf("") }
+    var juegoSeleccionado by remember { mutableStateOf(CatalogoJuegosPredefinidos.first()) }
     var plataformaSeleccionada by rememberSaveable {
-        mutableStateOf(plataformas.firstOrNull()?.nombre ?: "PC")
+        mutableStateOf(CatalogoJuegosPredefinidos.first().plataformaSugerida)
     }
     var estadoSeleccionado by rememberSaveable { mutableStateOf("Pendiente") }
     val estados = listOf("En progreso", "Pendiente", "Completado", "Abandonado")
@@ -356,25 +410,71 @@ fun NewGameModal(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Nuevo juego", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("Catálogo de Juegos", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextSecondary)
                     }
                 }
 
-                Text("TÍTULO", color = TextSecondary, fontSize = 12.sp)
-                OutlinedTextField(
-                    value = titulo,
-                    onValueChange = { titulo = it },
-                    placeholder = { Text("Nombre del juego", color = TextSecondary) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = TextPrimary,
-                        unfocusedTextColor = TextPrimary,
-                        focusedBorderColor = AccentPurple
-                    )
-                )
+                Text("SELECCIONA UN VIDEOJUEGO", color = TextSecondary, fontSize = 12.sp)
+
+                // Carrusel visual de portadas para elegir con un solo toque
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(CatalogoJuegosPredefinidos) { itemCatalogo ->
+                        val isSelected = juegoSeleccionado.titulo == itemCatalogo.titulo
+                        val itemBrush = Brush.linearGradient(
+                            colors = listOf(itemCatalogo.colorInicio, itemCatalogo.colorFin)
+                        )
+
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            border = if (isSelected) BorderStroke(2.5.dp, AccentPurple) else null,
+                            colors = CardDefaults.cardColors(containerColor = BgDark),
+                            modifier = Modifier
+                                .width(135.dp)
+                                .clickable {
+                                    juegoSeleccionado = itemCatalogo
+                                    plataformaSeleccionada = itemCatalogo.plataformaSugerida
+                                }
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(75.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(itemBrush),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (itemCatalogo.drawableRes != null) {
+                                        Image(
+                                            painter = painterResource(id = itemCatalogo.drawableRes),
+                                            contentDescription = itemCatalogo.titulo,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = if (isSelected) Icons.Default.CheckCircle else Icons.Default.PlayArrow,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(30.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = itemCatalogo.titulo,
+                                    color = TextPrimary,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
 
                 Text("PLATAFORMA", color = TextSecondary, fontSize = 12.sp)
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -394,7 +494,7 @@ fun NewGameModal(
                     }
                 }
 
-                Text("ESTADO", color = TextSecondary, fontSize = 12.sp)
+                Text("ESTADO INICIAL", color = TextSecondary, fontSize = 12.sp)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     estados.chunked(2).forEach { fila ->
                         Row(
@@ -419,14 +519,16 @@ fun NewGameModal(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Button(
-                    onClick = { onConfirm(titulo, plataformaSeleccionada, estadoSeleccionado) },
+                    onClick = {
+                        onConfirm(juegoSeleccionado.titulo, plataformaSeleccionada, estadoSeleccionado)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text("Agregar juego", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Agregar a mi colección", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             }
         }
