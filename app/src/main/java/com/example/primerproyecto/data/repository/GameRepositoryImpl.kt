@@ -61,4 +61,37 @@ class GameRepositoryImpl(
 
     override suspend fun eliminarPlataforma(plataforma: PlataformaEntity) =
         plataformaDao.eliminarPlataforma(plataforma)
+
+    override suspend fun loginUsuario(identificador: String, password: String): com.example.primerproyecto.data.local.entities.UsuarioEntity? {
+        return videojuegoDao.loginUsuario(identificador.trim(), password)
+    }
+
+    override suspend fun registrarUsuario(
+        nombreUsuario: String,
+        correo: String,
+        password: String
+    ): Result<com.example.primerproyecto.data.local.entities.UsuarioEntity> {
+        return try {
+            val existente = videojuegoDao.buscarUsuarioExistente(nombreUsuario.trim(), correo.trim())
+            if (existente != null) {
+                Result.failure(Exception("El usuario o correo ya está registrado."))
+            } else {
+                val nuevo = com.example.primerproyecto.data.local.entities.UsuarioEntity(
+                    id = 0,
+                    nombreUsuario = nombreUsuario.trim(),
+                    correo = correo.trim(),
+                    passwordHash = password
+                )
+                videojuegoDao.insertarUsuarioBase(nuevo)
+                val creado = videojuegoDao.loginUsuario(correo.trim(), password)
+                if (creado != null) {
+                    Result.success(creado)
+                } else {
+                    Result.failure(Exception("No se pudo recuperar el usuario creado."))
+                }
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

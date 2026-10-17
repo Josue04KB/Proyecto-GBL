@@ -17,12 +17,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.primerproyecto.ui.viewmodel.AppViewModelProvider
+import com.example.primerproyecto.ui.viewmodel.AuthUiState
+import com.example.primerproyecto.ui.viewmodel.AuthViewModel
 
+// CONTENEDOR CON ESTADO (Stateful Route)
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit
+fun LoginRoute(
+    onLoginSuccess: (Int) -> Unit,
+    onNavigateToRegister: () -> Unit,
+    viewModel: AuthViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var email by rememberSaveable { mutableStateOf("player@gamebacklog.com") }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState) {
+        if (uiState is AuthUiState.Authenticated) {
+            val userId = (uiState as AuthUiState.Authenticated).usuario.id
+            viewModel.limpiarEstado()
+            onLoginSuccess(userId)
+        }
+    }
+
+    LoginScreenContent(
+        uiState = uiState,
+        onLoginClick = viewModel::iniciarSesion,
+        onNavigateToRegister = {
+            viewModel.limpiarEstado()
+            onNavigateToRegister()
+        }
+    )
+}
+
+// VISTA SIN ESTADO (Stateless Content)
+@Composable
+fun LoginScreenContent(
+    uiState: AuthUiState,
+    onLoginClick: (String, String) -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
+    var identificador by rememberSaveable { mutableStateOf("player@gamebacklog.com") }
     var password by rememberSaveable { mutableStateOf("123456") }
 
     Box(
@@ -68,8 +103,8 @@ fun LoginScreen(
                 ) {
                     Text("USUARIO O CORREO", color = TextSecondary, fontSize = 12.sp)
                     OutlinedTextField(
-                        value = email,
-                        onValueChange = { email = it },
+                        value = identificador,
+                        onValueChange = { identificador = it },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -93,18 +128,39 @@ fun LoginScreen(
                         )
                     )
 
+                    if (uiState is AuthUiState.Error) {
+                        Text(
+                            text = uiState.mensaje,
+                            color = Color(0xFFE53935),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Button(
-                        onClick = onLoginSuccess,
+                        onClick = { onLoginClick(identificador, password) },
+                        enabled = uiState !is AuthUiState.Loading,
                         colors = ButtonDefaults.buttonColors(containerColor = AccentPurple),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
                     ) {
-                        Text("Iniciar Sesión", fontWeight = FontWeight.Bold, color = Color.White)
+                        if (uiState is AuthUiState.Loading) {
+                            CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
+                        } else {
+                            Text("Iniciar Sesión", fontWeight = FontWeight.Bold, color = Color.White)
+                        }
                     }
+                }
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("¿No tienes una cuenta?", color = TextSecondary, fontSize = 14.sp)
+                TextButton(onClick = onNavigateToRegister) {
+                    Text("Regístrate aquí", color = AccentPurple, fontWeight = FontWeight.Bold)
                 }
             }
         }

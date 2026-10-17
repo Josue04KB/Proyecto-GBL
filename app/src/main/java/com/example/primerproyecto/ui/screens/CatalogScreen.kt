@@ -62,10 +62,15 @@ val CatalogoJuegosPredefinidos = listOf(
 // CONTENEDOR CON ESTADO (Stateful Route)
 @Composable
 fun CatalogRoute(
+    userId: Int,
     onNavigateToDetail: (Int, String) -> Unit,
     onNavigateToSettings: () -> Unit,
     viewModel: CatalogViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    LaunchedEffect(userId) {
+        viewModel.establecerUsuarioActivo(userId)
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     CatalogScreenContent(

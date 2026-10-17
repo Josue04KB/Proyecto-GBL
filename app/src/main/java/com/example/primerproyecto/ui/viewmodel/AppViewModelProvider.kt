@@ -9,6 +9,11 @@ import com.example.primerproyecto.GameBacklogApplication
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
+            AuthViewModel(
+                repository = gameBacklogApplication().container.gameRepository
+            )
+        }
+        initializer {
             CatalogViewModel(
                 repository = gameBacklogApplication().container.gameRepository
             )

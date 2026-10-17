@@ -32,17 +32,39 @@ fun GameNavGraph(
         startDestination = "login"
     ) {
         composable("login") {
-            LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate("catalog") {
+            LoginRoute(
+                onLoginSuccess = { userId ->
+                    navController.navigate("catalog/$userId") {
                         popUpTo("login") { inclusive = true }
                     }
+                },
+                onNavigateToRegister = {
+                    navController.navigate("register")
                 }
             )
         }
 
-        composable("catalog") {
+        composable("register") {
+            RegisterRoute(
+                onRegisterSuccess = { userId ->
+                    navController.navigate("catalog/$userId") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = "catalog/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId") ?: 1
+
             CatalogRoute(
+                userId = userId,
                 onNavigateToDetail = { id, titulo ->
                     val encodedTitle = Uri.encode(titulo)
                     navController.navigate("detail/$id/$encodedTitle")
@@ -89,7 +111,7 @@ fun GameNavGraph(
                 },
                 onLogout = {
                     navController.navigate("login") {
-                        popUpTo("catalog") { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onBack = { navController.popBackStack() }
