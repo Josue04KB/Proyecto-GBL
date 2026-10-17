@@ -57,8 +57,8 @@ fun LoginScreenContent(
     onLoginClick: (String, String) -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
-    var identificador by rememberSaveable { mutableStateOf("player@gamebacklog.com") }
-    var password by rememberSaveable { mutableStateOf("123456") }
+    var identificador by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -105,6 +105,9 @@ fun LoginScreenContent(
                     OutlinedTextField(
                         value = identificador,
                         onValueChange = { identificador = it },
+                        placeholder = {
+                            Text("Ej. player@ejemplo.com", color = TextSecondary.copy(alpha = 0.6f))
+                        },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -118,6 +121,9 @@ fun LoginScreenContent(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
+                        placeholder = {
+                            Text("Ingresa tu contraseña", color = TextSecondary.copy(alpha = 0.6f))
+                        },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
